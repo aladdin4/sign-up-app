@@ -1,24 +1,24 @@
-import React from 'react';
-import isEmail from 'validator/lib/isEmail';
+import React from "react";
+import isEmail from "validator/lib/isEmail";
 
-const Field = require('./08-field-component-field.js');
+const Field = require("./08-field-component-field.js");
 
-const content = document.createElement('div');
+const content = document.createElement("div");
 document.body.appendChild(content);
 
 module.exports = class extends React.Component {
-  static displayName = '08-field-component-form';
+  static displayName = "08-field-component-form";
 
   state = {
     fields: {
-      name: '',
-      email: ''
+      name: "",
+      email: "",
     },
     fieldErrors: {},
-    people: []
+    people: [],
   };
 
-  onFormSubmit = evt => {
+  onFormSubmit = (evt) => {
     const people = this.state.people;
     const person = this.state.fields;
 
@@ -29,26 +29,31 @@ module.exports = class extends React.Component {
     this.setState({
       people: people.concat(person),
       fields: {
-        name: '',
-        email: ''
-      }
+        name: "",
+        email: "",
+      },
     });
   };
 
+  //this method will be called from it's child <field/>
   onInputChange = ({name, value, error}) => {
+    //a local copies of the objects
     const fields = Object.assign({}, this.state.fields);
     const fieldErrors = Object.assign({}, this.state.fieldErrors);
 
+    //editing the local copy
+    //note that: using [square brackets] instead of .dot notation happens when the property name is string or evaluates into a string.
     fields[name] = value;
     fieldErrors[name] = error;
 
+    //setting the state with the new copies
     this.setState({fields, fieldErrors});
   };
 
   validate = () => {
     const person = this.state.fields;
     const fieldErrors = this.state.fieldErrors;
-    const errMessages = Object.keys(fieldErrors).filter(k => fieldErrors[k]);
+    const errMessages = Object.keys(fieldErrors).filter((k) => fieldErrors[k]);
 
     if (!person.name) return true;
     if (!person.email) return true;
@@ -68,7 +73,7 @@ module.exports = class extends React.Component {
             name="name"
             value={this.state.fields.name}
             onChange={this.onInputChange}
-            validate={val => (val ? false : 'Name Required')}
+            validate={(val) => (val ? false : "Name Required")}
           />
 
           <br />
@@ -78,7 +83,7 @@ module.exports = class extends React.Component {
             name="email"
             value={this.state.fields.email}
             onChange={this.onInputChange}
-            validate={val => (isEmail(val) ? false : 'Invalid Email')}
+            validate={(val) => (isEmail(val) ? false : "Invalid Email")}
           />
 
           <br />

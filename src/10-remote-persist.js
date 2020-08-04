@@ -1,39 +1,43 @@
 /* eslint no-underscore-dangle: [2, { "allow": ["_loading", "_saveStatus"] }] */
 
-import React from 'react';
-import isEmail from 'validator/lib/isEmail';
+import React from "react";
+import isEmail from "validator/lib/isEmail";
 
-const Field = require('./08-field-component-field.js');
-const CourseSelect = require('./09-course-select.js');
+const Field = require("./08-field-component-field.js");
+const CourseSelect = require("./09-course-select.js");
 
-const content = document.createElement('div');
+const content = document.createElement("div");
 document.body.appendChild(content);
 
 let apiClient;
 module.exports = class extends React.Component {
-  static displayName = '10-remote-persist';
+  static displayName = "10-remote-persist";
 
   state = {
     fields: {
-      name: '',
-      email: '',
+      name: "",
+      email: "",
       course: null,
-      department: null
+      department: null,
     },
     fieldErrors: {},
     people: [],
     _loading: false,
-    _saveStatus: 'READY'
+    _saveStatus: "READY",
   };
 
+  //the first thing to do is to request the data saved, so the app is up to date
   componentDidMount() {
+    //ui convention
     this.setState({_loading: true});
-    apiClient.loadPeople().then(people => {
+
+    //fetching the data from the database
+    apiClient.loadPeople().then((people) => {
       this.setState({_loading: false, people: people});
     });
   }
 
-  onFormSubmit = evt => {
+  onFormSubmit = (evt) => {
     const person = this.state.fields;
 
     evt.preventDefault();
@@ -42,24 +46,24 @@ module.exports = class extends React.Component {
 
     const people = [...this.state.people, person];
 
-    this.setState({_saveStatus: 'SAVING'});
+    this.setState({_saveStatus: "SAVING"});
     apiClient
       .savePeople(people)
       .then(() => {
         this.setState({
           people: people,
           fields: {
-            name: '',
-            email: '',
+            name: "",
+            email: "",
             course: null,
-            department: null
+            department: null,
           },
-          _saveStatus: 'SUCCESS'
+          _saveStatus: "SUCCESS",
         });
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
-        this.setState({_saveStatus: 'ERROR'});
+        this.setState({_saveStatus: "ERROR"});
       });
   };
 
@@ -70,13 +74,13 @@ module.exports = class extends React.Component {
     fields[name] = value;
     fieldErrors[name] = error;
 
-    this.setState({fields, fieldErrors, _saveStatus: 'READY'});
+    this.setState({fields, fieldErrors, _saveStatus: "READY"});
   };
 
   validate = () => {
     const person = this.state.fields;
     const fieldErrors = this.state.fieldErrors;
-    const errMessages = Object.keys(fieldErrors).filter(k => fieldErrors[k]);
+    const errMessages = Object.keys(fieldErrors).filter((k) => fieldErrors[k]);
 
     if (!person.name) return true;
     if (!person.email) return true;
@@ -102,7 +106,7 @@ module.exports = class extends React.Component {
             name="name"
             value={this.state.fields.name}
             onChange={this.onInputChange}
-            validate={val => (val ? false : 'Name Required')}
+            validate={(val) => (val ? false : "Name Required")}
           />
 
           <br />
@@ -112,7 +116,7 @@ module.exports = class extends React.Component {
             name="email"
             value={this.state.fields.email}
             onChange={this.onInputChange}
-            validate={val => (isEmail(val) ? false : 'Invalid Email')}
+            validate={(val) => (isEmail(val) ? false : "Invalid Email")}
           />
 
           <br />
@@ -142,7 +146,7 @@ module.exports = class extends React.Component {
                   type="submit"
                   disabled={this.validate()}
                 />
-              )
+              ),
             }[this.state._saveStatus]
           }
         </form>
@@ -151,7 +155,7 @@ module.exports = class extends React.Component {
           <h3>People</h3>
           <ul>
             {this.state.people.map(({name, email, department, course}, i) => (
-              <li key={i}>{[name, email, department, course].join(' - ')}</li>
+              <li key={i}>{[name, email, department, course].join(" - ")}</li>
             ))}
           </ul>
         </div>
@@ -160,18 +164,22 @@ module.exports = class extends React.Component {
   }
 };
 
+// we use it as an object, not as a function that returns object (refactored)
 apiClient = {
-  loadPeople: function() {
+  //this method doesn't need to find a specific data, it returns everything
+  loadPeople: function () {
     return {
-      then: function(cb) {
+      //then is the same:a property method in a returned object
+      then: function (cb) {
         setTimeout(() => {
-          cb(JSON.parse(localStorage.people || '[]'));
+          //calling the undefined function cb() which will be the promise resolve then method
+          cb(JSON.parse(localStorage.people || "[]"));
         }, 1000);
-      }
+      },
     };
   },
 
-  savePeople: function(people) {
+  savePeople: function (people) {
     const success = !!(this.count++ % 2);
 
     return new Promise((resolve, reject) => {
@@ -184,5 +192,5 @@ apiClient = {
     });
   },
 
-  count: 1
+  count: 1,
 };
